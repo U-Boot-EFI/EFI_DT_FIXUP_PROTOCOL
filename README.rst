@@ -212,15 +212,15 @@ Status codes returned
 ~~~~~~~~~~~~~~~~~~~~~
 
 +---------------------------+-------------------------------------------------+
-| **EFI_INVALID_PARAMETER** | This is NULL or does not point to a valid       |
+| **EFI_INVALID_PARAMETER** | *This* is NULL or does not point to a valid     |
 |                           | EFI_DT_FIXUP_PROTOCOL implementation.           |
 +---------------------------+-------------------------------------------------+
-| **EFI_INVALID_PARAMETER** | Fdt or BufferSize is NULL                       |
+| **EFI_INVALID_PARAMETER** | *Fdt* or *BufferSize* is NULL                   |
 +---------------------------+-------------------------------------------------+
-| **EFI_INVALID_PARAMETER** | \*Fdt is not a valid device-tree                |
+| **EFI_INVALID_PARAMETER** | *Fdt* does not point to a valid device-tree     |
 |                           | (e.g. incorrect value of magic)                 |
 +---------------------------+-------------------------------------------------+
-| **EFI_INVALID_PARAMETER** | Invalid value of Flags (zero or unknown bit)    |
+| **EFI_INVALID_PARAMETER** | Invalid value of *Flags* (zero or unknown bit)  |
 +---------------------------+-------------------------------------------------+
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is too small to apply the fix-ups.   |
 +---------------------------+-------------------------------------------------+
