@@ -196,14 +196,14 @@ might be more space between blocks but not all device-tree libraries can
 use it.)
 
 The required buffer size when called without **EFI_DT_APPLY_FIXUPS** shall be
-the value of the *totalsize* field of the flattened device tree header.
+the value of the *totalsize* field of the flattened device-tree header.
 
 If any other error code is returned, the state of the device-tree is undefined.
 The caller should discard the buffer content.
 
 The extent to which the validity of the device-tree is checked is implementation
 dependent. But a buffer without the correct value of the *magic* field of the
-flattened device tree header should always be rejected.
+flattened device-tree header should always be rejected.
 
 The protocol implementation is not required to check if the device-tree is in
 memory of type **EfiACPIReclaimMemory**.
