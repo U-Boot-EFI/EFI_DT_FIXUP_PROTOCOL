@@ -187,9 +187,9 @@ at least 4 KiB unused space for additional fix-ups by the operating system or
 the caller. The available space in the device-tree shall be determined using the
 device-tree header fields::
 
-    Available = header->totalsize
+    available = header->totalsize
               - header->off_dt_strings
-              - header->size_dt_strings;
+              - header->size_dt_strings
 
 (The strings block is always last in the flattened device-tree. There
 might be more space between blocks but not all device-tree libraries can
