@@ -224,5 +224,8 @@ Status codes returned
 +---------------------------+-------------------------------------------------+
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is too small to apply the fix-ups.   |
 +---------------------------+-------------------------------------------------+
+| **EFI_OUT_OF_RESOURCES**  | There is not enough memory available to         |
+|                           | complete the operation.                         |
++---------------------------+-------------------------------------------------+
 | **EFI_SUCCESS**           | All steps succeeded                             |
 +---------------------------+-------------------------------------------------+
