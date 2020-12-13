@@ -1,4 +1,4 @@
-From a4fdc048db9aec3e942f398550ec4853d53ecb2c Mon Sep 17 00:00:00 2001
+From b41d0a60ce3be10cbc0eb51a8c7e673533ea98a8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 13 Dec 2020 19:13:57 +0100
 Subject: [PATCH 2/2] efi_selftest: dtbdump support EFI_DT_FIXUP_PROTOCOL
@@ -28,11 +28,11 @@ A dtbdump.efi session would look like:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/dtbdump.c | 300 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 264 insertions(+), 36 deletions(-)
+ lib/efi_selftest/dtbdump.c | 310 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 273 insertions(+), 37 deletions(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index d90e3eb768..659cbd9760 100644
+index d90e3eb768..efef759863 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
 @@ -8,10 +8,12 @@
@@ -96,7 +96,7 @@ index d90e3eb768..659cbd9760 100644
  			cout->output_string(cout, outbuf);
  		}
  	}
-@@ -117,60 +138,220 @@ void *get_dtb(struct efi_system_table *systable)
+@@ -117,60 +138,228 @@ void *get_dtb(struct efi_system_table *systable)
  }
  
  /**
@@ -158,13 +158,14 @@ index d90e3eb768..659cbd9760 100644
 +	struct efi_dt_fixup_protocol *dt_fixup_prot;
  	struct efi_loaded_image *loaded_image;
  	struct efi_simple_file_system_protocol *file_system;
-+	efi_uintn_t buffer_size;
- 	struct efi_file_handle *root, *file;
- 	struct fdt_header *dtb;
-+	struct efi_file_info *info;
+-	struct efi_file_handle *root, *file;
++	struct efi_file_handle *root = NULL, *file = NULL;
 +	u64 addr = 0;
++	struct efi_file_info *info;
+ 	struct fdt_header *dtb;
++	efi_uintn_t buffer_size;
 +	efi_uintn_t pages;
-+	efi_status_t ret;
++	efi_status_t ret, ret2;
  
 -	cerr = systable->std_err;
 -	cout = systable->con_out;
@@ -191,7 +192,6 @@ index d90e3eb768..659cbd9760 100644
 +		error(L"Loaded image protocol not found\n");
 +		return ret;
 +	}
-+
 +	/* Open the simple file system protocol */
 +	ret = bs->open_protocol(loaded_image->device_handle,
 +				&guid_simple_file_system_protocol,
@@ -199,21 +199,21 @@ index d90e3eb768..659cbd9760 100644
 +				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 +	if (ret != EFI_SUCCESS) {
 +		error(L"Failed to open simple file system protocol\n");
-+		return ret;
++		goto out;
 +	}
 +
 +	/* Open volume */
 +	ret = file_system->open_volume(file_system, &root);
 +	if (ret != EFI_SUCCESS) {
 +		error(L"Failed to open volume\n");
-+		return ret;
++		goto out;
 +	}
 +
-+	/* Create file */
++	/* Open file */
 +	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
 +	if (ret != EFI_SUCCESS) {
 +		error(L"File not found\n");
-+		return ret;
++		goto out;
 +	}
 +	/* Get file size */
 +	buffer_size = 0;
@@ -245,7 +245,7 @@ index d90e3eb768..659cbd9760 100644
 +		error(L"Out of memory\n");
 +		goto out;
 +	}
-+	dtb = (struct fdt_header *)addr;
++	dtb = (struct fdt_header *)(uintptr_t)addr;
 +	ret = file->read(file, &buffer_size, dtb);
 +	if (ret != EFI_SUCCESS) {
 +		error(L"Can't read file\n");
@@ -268,7 +268,7 @@ index d90e3eb768..659cbd9760 100644
 +			error(L"Out of memory\n");
 +			goto out;
 +		}
-+		dtb = (struct fdt_header *)addr;
++		dtb = (struct fdt_header *)(uintptr_t)addr;
 +		ret = file->setpos(file, 0);
 +		if (ret != EFI_SUCCESS) {
 +			error(L"Can't position file\n");
@@ -291,11 +291,20 @@ index d90e3eb768..659cbd9760 100644
 +		error(L"Device-tree fix-up failed\n");
 +out:
 +	if (addr) {
-+		ret = bs->free_pages(addr, pages);
-+		if (ret != EFI_SUCCESS)
++		ret2 = bs->free_pages(addr, pages);
++		if (ret2 != EFI_SUCCESS)
 +			error(L"Can't free memory pages\n");
 +	}
-+	file->close(file);
++	if (file) {
++		ret2 = file->close(file);
++		if (ret2 != EFI_SUCCESS)
++			error(L"Can't close file\n");
++	}
++	if (root) {
++		ret2 = root->close(root);
++		if (ret2 != EFI_SUCCESS)
++			error(L"Can't close volume\n");
++	}
 +	return ret;
 +}
 +
@@ -347,7 +356,7 @@ index d90e3eb768..659cbd9760 100644
  		return ret;
  	}
  
-@@ -180,15 +361,14 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -180,15 +369,14 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  				(void **)&file_system, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -365,7 +374,7 @@ index d90e3eb768..659cbd9760 100644
  		return ret;
  	}
  	/* Create file */
-@@ -199,10 +379,10 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -199,10 +387,10 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  		/* Write file */
  		ret = file->write(file, &dtb_size, dtb);
  		if (ret != EFI_SUCCESS)
@@ -378,7 +387,7 @@ index d90e3eb768..659cbd9760 100644
  	}
  	root->close(root);
  
-@@ -213,3 +393,51 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -213,3 +401,51 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  
  	return ret;
  }
