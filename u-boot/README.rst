@@ -1,7 +1,21 @@
-U-Boot patches
-==============
+U-Boot
+======
 
-The patches were created against branch origin/master commit 5a1a8a63be8f.
+Configuration
+-------------
+
+The EFI_DT_FIXUP_PROTOCOL is enabled via::
+
+    CONFIG_EFI_DT_FIXUP=y
+
+The patches in this directory are already merged in U-Boot v2021.04. They are
+applicable to U-Boot v2021.01.
+
+dtbdump.efi
+-----------
+
+dtbdump.efi is a tool provided with U-Boot for testing the
+EFI_DT_FIXUP_PROTOCOL.
 
 To build the test tool dtbdump.efi you need to select::
 
