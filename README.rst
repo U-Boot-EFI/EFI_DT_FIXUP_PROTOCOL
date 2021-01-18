@@ -107,7 +107,7 @@ Prototype
         IN EFI_DT_FIXUP_PROTOCOL *This,
         IN VOID                  *Fdt,
         IN OUT UINTN             *BufferSize,
-        IN UINT32                Flags,
+        IN UINT32                Flags
         );
 
 Parameters
