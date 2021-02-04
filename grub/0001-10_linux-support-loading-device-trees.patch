@@ -1,77 +1,84 @@
-From 74e0acc541ba413a2f8cfac52c9e94dab32065e3 Mon Sep 17 00:00:00 2001
+From c4e36fddf91a5ef6b32995eb191606fc5529ebb8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 20 Jan 2018 10:28:30 +0100
+Date: Thu, 04 Feb 2021 07:28:30 +0100
 Subject: [PATCH 1/1] 10_linux: support loading device trees
 
-Currently GRUB only loads the Linux kernel and the initial file system
-before booting.
-
-On the arm and arm64 architectures the device tree is also needed for
-booting. The device tree is Linux kernel version dependent. So we can
-not rely on the initial bootloader to provide the correct device tree
-when calling grub.
-
-Luckily the device tree to be loaded can be specified in GRUB with the
-devicetree command.
-
-The patch changes the 10_linux script to look in sequence for files
-${dirname}/dtb-${version} and ${dirname}/dtb. If one of the files is
-present, an entry
-
-	devicetreee ${rel_dirname}/${dtb}
-
-is added to the Linux boot entry.
-
-== Distro suppport ==
-
-Debian maintains a symbolic link /boot/dtb to the most current device
-tree and another symbolic link /boot/dtb-${version} for the version
-specific devicetree if package flash-kernel is installed.
-
-On Suse a symbolic link /boot/dtb points to the current
-/boot/dtb-${version}.
+If in /etc/default/grub GRUB_LOAD_DEVICE_TREE=true, the boot directory
+is scanned for files dtb-${version} and dtb. If such a file exists,
+a devicetree command is added per Linux menu entry.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ docs/grub.texi          |  6 ++++++
+ util/grub-mkconfig.in   |  1 +
  util/grub.d/10_linux.in | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ 3 files changed, 30 insertions(+)
 
+diff --git a/docs/grub.texi b/docs/grub.texi
+index eeac9b2ce..64cf95e6f 100644
+--- a/docs/grub.texi
++++ b/docs/grub.texi
+@@ -1560,6 +1560,12 @@ This option may be set to a list of GRUB module names separated by spaces.
+ Each module will be loaded as early as possible, at the start of
+ @file{grub.cfg}.
+ 
++@item GRUB_LOAD_DEVICE_TREE
++If this option is set to @samp{true}, a devicetree command will be added
++to the Linux menu entries in @file{grub.cfg}. Device-trees require fix-ups
++by the firmware. You should use this option only if your firmware supports
++the EFI Device Tree Fixup Protocol.
++
+ @end table
+ 
+ The following options are still accepted for compatibility with existing
+diff --git a/util/grub-mkconfig.in b/util/grub-mkconfig.in
+index d3e879b8e..3d7fd54f3 100644
+--- a/util/grub-mkconfig.in
++++ b/util/grub-mkconfig.in
+@@ -230,6 +230,7 @@ export GRUB_DEFAULT \
+   GRUB_CMDLINE_GNUMACH \
+   GRUB_EARLY_INITRD_LINUX_CUSTOM \
+   GRUB_EARLY_INITRD_LINUX_STOCK \
++  GRUB_LOAD_DEVICETREE \
+   GRUB_TERMINAL_INPUT \
+   GRUB_TERMINAL_OUTPUT \
+   GRUB_SERIAL_COMMAND \
 diff --git a/util/grub.d/10_linux.in b/util/grub.d/10_linux.in
-index e8b01c0d0..dc3ddbe75 100644
+index e8b01c0d0..15bc26ba8 100644
 --- a/util/grub.d/10_linux.in
 +++ b/util/grub.d/10_linux.in
-@@ -143,6 +143,17 @@ linux_entry ()
+@@ -143,6 +143,15 @@ linux_entry ()
  	echo	'$(echo "$message" | grub_quote)'
  	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
  EOF
-+  if test -n "${dtb}" ; then
-+    if [ x"$quiet_boot" = x0 ] || [ x"$type" != xsimple ]; then
++  if [ "x${GRUB_LOAD_DEVICETREE}" = "xtrue" ]; then
++    if test -n "${dtb}" ; then
 +      message="$(gettext_printf "Loading device tree ...")"
 +      sed "s/^/$submenu_indentation/" << EOF
 +	echo	'$(echo "$message" | grub_quote)'
-+EOF
-+    fi
-+    sed "s/^/$submenu_indentation/" << EOF
 +	devicetree	${rel_dirname}/${dtb}
 +EOF
++    fi
 +  fi
    if test -n "${initrd}" ; then
      # TRANSLATORS: ramdisk isn't identifier. Should be translated.
      message="$(gettext_printf "Loading initial ramdisk ...")"
-@@ -244,6 +255,18 @@ while [ "x$list" != "x" ] ; do
+@@ -244,6 +253,20 @@ while [ "x$list" != "x" ] ; do
      fi
    done
  
-+  dtb=
-+  for i in "dtb-${version}" "dtb" ; do
-+    if test -e "${dirname}/${i}" ; then
-+      dtb="${i}"
-+      break
-+    fi
-+  done
++  if [ "x${GRUB_LOAD_DEVICETREE}" = "xtrue" ]; then
++    dtb=
++    for i in "dtb-${version}" "dtb" ; do
++      if test -e "${dirname}/${i}" ; then
++        dtb="${i}"
++        break
++      fi
++    done
 +
-+  if test -n "${dtb}" ; then
-+    gettext_printf "Found dtb: %s\n" "${dirname}/${dtb}" >&2
++    if test -n "${dtb}" ; then
++      gettext_printf "Found dtb: %s\n" "${dirname}/${dtb}" >&2
++    fi
 +  fi
 +
    initramfs=

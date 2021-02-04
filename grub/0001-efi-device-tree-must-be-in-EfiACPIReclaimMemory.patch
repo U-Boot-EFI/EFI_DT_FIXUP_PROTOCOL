@@ -1,6 +1,6 @@
-From fea60dc8b60d8d76ab9b80c9657e6728d2f4458e Mon Sep 17 00:00:00 2001
+From a24ca9f5ac152db7e8a8ce0a5fdc7949bbc593e9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Fri, 29 Jan 2021 11:17:11 +0100
+Date: Fri, 29 Jan 2021 12:17:11 +0100
 Subject: [PATCH 1/1] efi: device-tree must be in EfiACPIReclaimMemory
 
 According to the Embedded Base Boot Requirements (EBBR) specification the
@@ -9,14 +9,22 @@ EfiACPIReclaimMemory.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- grub-core/loader/efi/fdt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ grub-core/loader/efi/fdt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/grub-core/loader/efi/fdt.c b/grub-core/loader/efi/fdt.c
-index ee9c5592c..b1b2b8029 100644
+index ee9c5592c..57ee81686 100644
 --- a/grub-core/loader/efi/fdt.c
 +++ b/grub-core/loader/efi/fdt.c
-@@ -60,7 +60,10 @@ grub_fdt_load (grub_size_t additional_size)
+@@ -25,6 +25,7 @@
+ #include <grub/efi/efi.h>
+ #include <grub/efi/fdtload.h>
+ #include <grub/efi/memory.h>
++#include <grub/cpu/efi/memory.h>
+ 
+ static void *loaded_fdt;
+ static void *fdt;
+@@ -60,7 +61,10 @@ grub_fdt_load (grub_size_t additional_size)
    size += additional_size;
  
    grub_dprintf ("linux", "allocating %d bytes for fdt\n", size);
@@ -29,5 +37,5 @@ index ee9c5592c..b1b2b8029 100644
      return NULL;
  
 -- 
-2.29.2
+2.30.0
 
