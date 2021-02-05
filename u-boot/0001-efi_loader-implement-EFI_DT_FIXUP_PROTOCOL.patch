@@ -362,7 +362,7 @@ index 0000000000..5f0ae5c338
 +	if (flags & EFI_DT_RESERVE_MEMORY)
 +		efi_carve_out_dt_rsv(dtb);
 +
-+	if (EFI_DT_INSTALL_TABLE) {
++	if (flags & EFI_DT_INSTALL_TABLE) {
 +		ret = efi_install_configuration_table(&efi_guid_fdt, dtb);
 +		if (ret != EFI_SUCCESS) {
 +			log_err("ERROR: failed to install device tree\n");
