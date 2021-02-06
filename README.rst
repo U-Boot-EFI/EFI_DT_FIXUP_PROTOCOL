@@ -2,9 +2,20 @@
 .. Copyright (c) 2020 Heinrich Schuchardt
 
 EFI Device Tree Fixup Protocol Specification
-============================================
+--------------------------------------------
 
-Draft, 2020-12-12
+Revision History
+----------------
+
++------------+-----------------------------------------------------------------+
+| **Date**   | **Change**                                                      |
++------------+-----------------------------------------------------------------+
+| 2020-12-12 | Initial draft                                                   |
++------------+-----------------------------------------------------------------+
+| 2021-02-06 | Remove installation of the device tree as configuration table   |
+|            | using EFI_DT_INSTALL_TABLE as this duplicates the               |
+|            | InstallConfigurationTable() boot service.                       |
++------------+-----------------------------------------------------------------+
 
 Background
 ----------
@@ -117,8 +128,7 @@ This
     Pointer to the protocol
 
 Fdt
-    Buffer with the device-tree. This shall be memory of type
-    **EfiACPIReclaimMemory** if *Flags* comprises **EFI_DT_INSTALL_TABLE**.
+    Buffer with the device-tree.
 
 BufferSize
     Pointer to the size of the buffer including trailing unused bytes for
@@ -130,7 +140,6 @@ Flags
 
     * **EFI_DT_APPLY_FIXUPS**
     * **EFI_DT_RESERVE_MEMORY**
-    * **EFI_DT_INSTALL_TABLE**
 
     Indicates the actions to be applied to the device-tree.
 
@@ -146,41 +155,26 @@ Related Definitions
      * and the memory reservation block
      */
     #define EFI_DT_RESERVE_MEMORY  0x00000002
-    /* Install the device-tree as configuration table */
-    #define EFI_DT_INSTALL_TABLE   0x00000004
 
 Description
 ~~~~~~~~~~~
 
 The **Fixup()** function is called by a UEFI binary that has loaded a
-device-tree to let the firmware apply firmware specific fix-ups, adjust memory
-reservations, and eventually install the the device-tree as a configuration
-table.
+device-tree to let the firmware apply firmware specific fix-ups and adjust
+memory reservations.
 
-The caller provides the device-tree in a buffer of memory type
-**EfiACPIReclaimMemory** as this is the memory type to be used for device-trees
-provided as configuration table to the operating system.
-
-If all or only sub-set of these actions shall be executed is determined by the
-*Flags* parameter. The selected actions indicated in *Flags* are applied in the
-sequence:
+Which of these actions shall be executed is determined by the *Flags* parameter.
+The selected actions indicated in *Flags* are applied in the sequence:
 
 * Add nodes and update properties.
 * Reserve memory according to the /reserved-memory node and the memory
   reservation block
-* Install the device-tree as configuration table
 
-Memory is reserved as **EfiBootServicesData** if the reservation does not carry
-the **no-map** property and as **EfiReservedMemoryType** if it is marked as
-**no-map**.
+The extent to which the validity of the device-tree is checked is implementation
+dependent. But a buffer without the correct value of the *magic* field of the
+flattened device-tree header must be rejected with **EFI_INVALID_PARAMETER**.
 
-If the value pointed to by *BufferSize* exceeds the value of the *totalsize*
-field of the device-tree header upon entry to the service, the *totalsize* field
-is set to the value pointed to by *BufferSize*.
-
-If the buffer is too small, **EFI_BUFFER_TOO_SMALL** is returned,
-the device-tree is unmodified and the value pointed to by *BufferSize* is
-updated with the required buffer size for the provided device-tree.
+The buffer size must at least equal the totalsize field of the device tree.
 
 The required buffer size when called with **EFI_DT_APPLY_FIXUPS** should enforce
 at least 4 KiB unused space for additional fix-ups by the operating system or
@@ -195,20 +189,22 @@ device-tree header fields::
 might be more space between blocks but not all device-tree libraries can
 use it.)
 
-The required buffer size when called without **EFI_DT_APPLY_FIXUPS** shall be
-the value of the *totalsize* field of the flattened device-tree header.
+If the buffer is too small, **EFI_BUFFER_TOO_SMALL** is returned,
+the device-tree is unmodified and the value pointed to by *BufferSize* is
+updated with the required buffer size for the provided device-tree.
 
-If any other error code is returned, the state of the device-tree is undefined.
-The caller should discard the buffer content.
+If any other error code is returned in response to a call with
+**EFI_DT_APPLY_FIXUPS**, the state of the device-tree is undefined. The caller
+should discard the buffer content.
 
-The extent to which the validity of the device-tree is checked is implementation
-dependent. But a buffer without the correct value of the *magic* field of the
-flattened device-tree header should always be rejected.
+When **Fixup()** is called with **EFI_DT_RESERVE_MEMORY**, memory is reserved
+according to the /reserved-memory node and the memory reservation block
 
-The protocol implementation is not required to check if the device-tree is in
-memory of type **EfiACPIReclaimMemory**.
+Memory is reserved as **EfiBootServicesData** if the reservation does not carry
+the **no-map** property and as **EfiReservedMemoryType** if it is marked as
+**no-map**.
 
-Status codes returned
+Status Codes Returned
 ~~~~~~~~~~~~~~~~~~~~~
 
 +---------------------------+-------------------------------------------------+
@@ -223,6 +219,9 @@ Status codes returned
 | **EFI_INVALID_PARAMETER** | Invalid value of *Flags* (zero or unknown bit)  |
 +---------------------------+-------------------------------------------------+
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is too small to apply the fix-ups.   |
++---------------------------+-------------------------------------------------+
+| **EFI_BUFFER_TOO_SMALL**  | The buffer is smaller then the value of the     |
+|                           | totalsize field of the device-tree              |
 +---------------------------+-------------------------------------------------+
 | **EFI_OUT_OF_RESOURCES**  | There is not enough memory available to         |
 |                           | complete the operation.                         |
