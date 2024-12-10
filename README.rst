@@ -16,6 +16,8 @@ Revision History
 |            | using EFI_DT_INSTALL_TABLE as this duplicates the               |
 |            | InstallConfigurationTable() boot service.                       |
 +------------+-----------------------------------------------------------------+
+| 2024-12-11 | Fix typos                                                       |
++------------+-----------------------------------------------------------------+
 
 Background
 ----------
@@ -28,7 +30,7 @@ are added or altered.
 
 Typically the software support for hardware is introduced in small steps and not
 in a big bang approach. The device-tree used to describe the hardware is
-developped in parallel. Sometimes backwards compatibility is broken. New
+developed in parallel. Sometimes backward compatibility is broken. New
 versions of operating systems cannot boot with old device-trees or old
 versions of operating systems cannot boot with new device-trees.
 
@@ -46,7 +48,7 @@ firmware that a boot manager can call to apply fix-ups to device-trees.
 EFI_DT_FIXUP_PROTOCOL
 ---------------------
 
-This section provides a detailed description fo the EFI device-tree fix-up
+This section provides a detailed description for the EFI device-tree fix-up
 protocol.
 
 Summary
@@ -58,8 +60,8 @@ apply fix-ups.
 Furthermore the function can be used to adjust the UEFI memory map according
 to the reservations defined in the device-tree.
 
-As a final step the protocol allow to install the device-tree as a configuration
-table.
+As a final step the protocol allows to install the device-tree as a
+configuration table.
 
 GUID
 ~~~~
@@ -92,8 +94,8 @@ Parameters
 
 Revision
     The version of the EFI_DT_FIXUP_PROTOCOL. The version specified by this
-    specification is 0x00010000. All future revisions must be backwards
-    compatible. If a new version of the specification breaks backwards
+    specification is 0x00010000. All future revisions must be backward
+    compatible. If a new version of the specification breaks backward
     compatibility, a new GUID must be defined.
 
 Fixup
@@ -220,7 +222,7 @@ Status Codes Returned
 +---------------------------+-------------------------------------------------+
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is too small to apply the fix-ups.   |
 +---------------------------+-------------------------------------------------+
-| **EFI_BUFFER_TOO_SMALL**  | The buffer is smaller then the value of the     |
+| **EFI_BUFFER_TOO_SMALL**  | The buffer is smaller than the value of the     |
 |                           | totalsize field of the device-tree              |
 +---------------------------+-------------------------------------------------+
 | **EFI_OUT_OF_RESOURCES**  | There is not enough memory available to         |
