@@ -18,9 +18,6 @@ when calling grub.
 
   is added to the Linux boot entry.
 
-0001-efi-device-tree-must-be-in-EfiACPIReclaimMemory.patch
-  The EBBR requires that device trees must reside in EfiACPIReclaimMemory.
-
 0001-efi-EFI-Device-Tree-Fixup-Protocol.patch
   With the patch the EFI_DT_FIXUP_PROTOCOL is used to fix-up device trees
   loaded via the devicetree command.
