@@ -18,6 +18,9 @@ Revision History
 +------------+-----------------------------------------------------------------+
 | 2024-12-11 | Fix typos                                                       |
 +------------+-----------------------------------------------------------------+
+| 2025-01-13 | Remove description that still refers to installation as         |
+|            | as configuration table though EFI_DT_INSTALL_TABLE is removed.  |
++------------+-----------------------------------------------------------------+
 
 Background
 ----------
@@ -60,9 +63,6 @@ apply fix-ups.
 Furthermore the function can be used to adjust the UEFI memory map according
 to the reservations defined in the device-tree.
 
-As a final step the protocol allows to install the device-tree as a
-configuration table.
-
 GUID
 ~~~~
 
@@ -99,7 +99,7 @@ Revision
     compatibility, a new GUID must be defined.
 
 Fixup
-    Applies fix-ups to a device-tree and installs it as a configuration table.
+    Applies fix-ups to a device-tree and makes memory reservations.
 
 EFI_DT_FIXUP_PROTOCOL.Fixup()
 -----------------------------
@@ -107,8 +107,7 @@ EFI_DT_FIXUP_PROTOCOL.Fixup()
 Summary
 ~~~~~~~
 
-Applies fix-ups to a device-tree, makes memory reservations, and installs the
-device-tree as a configuration table.
+Applies fix-ups to a device-tree and makes memory reservations.
 
 Prototype
 ~~~~~~~~~
