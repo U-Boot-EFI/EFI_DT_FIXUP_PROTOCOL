@@ -21,6 +21,17 @@ Revision History
 | 2025-01-13 | Remove description that still refers to installation as         |
 |            | as configuration table though EFI_DT_INSTALL_TABLE is removed.  |
 +------------+-----------------------------------------------------------------+
+| 2025-06-01 | Clarify license                                                 |
++------------+-----------------------------------------------------------------+
+
+License
+-------
+
+This protocol specification is published under the
+`CC-BY-ND-4.0 <https://creativecommons.org/licenses/by-nd/4.0/>`_ license.
+
+You may implement the EFI Device Tree Fixup Protocol using a code license of
+your choice, e.g. MIT, BSD, or GPL.
 
 Background
 ----------
