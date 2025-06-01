@@ -182,11 +182,12 @@ The selected actions indicated in *Flags* are applied in the sequence:
 * Reserve memory according to the /reserved-memory node and the memory
   reservation block
 
-The extent to which the validity of the device-tree is checked is implementation
-dependent. But a buffer without the correct value of the *magic* field of the
-flattened device-tree header must be rejected with **EFI_INVALID_PARAMETER**.
+The extent to which the validity of the device-tree is checked is
+implementation-dependent. But a buffer without the correct value of the *magic*
+field of the flattened device-tree header must be rejected with
+**EFI_INVALID_PARAMETER**.
 
-The buffer size must at least equal the totalsize field of the device tree.
+The buffer size must at least equal the *totalsize* field of the device tree.
 
 The required buffer size when called with **EFI_DT_APPLY_FIXUPS** should enforce
 at least 4 KiB unused space for additional fix-ups by the operating system or
@@ -233,7 +234,7 @@ Status Codes Returned
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is too small to apply the fix-ups.   |
 +---------------------------+-------------------------------------------------+
 | **EFI_BUFFER_TOO_SMALL**  | The buffer is smaller than the value of the     |
-|                           | totalsize field of the device-tree              |
+|                           | *totalsize* field of the device-tree            |
 +---------------------------+-------------------------------------------------+
 | **EFI_OUT_OF_RESOURCES**  | There is not enough memory available to         |
 |                           | complete the operation.                         |
