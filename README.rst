@@ -19,7 +19,7 @@ Revision History
 | 2024-12-11 | Fix typos                                                       |
 +------------+-----------------------------------------------------------------+
 | 2025-01-13 | Remove description that still refers to installation as         |
-|            | as configuration table though EFI_DT_INSTALL_TABLE is removed.  |
+|            | configuration table though EFI_DT_INSTALL_TABLE is removed.     |
 +------------+-----------------------------------------------------------------+
 | 2025-06-01 | Clarify license                                                 |
 +------------+-----------------------------------------------------------------+
