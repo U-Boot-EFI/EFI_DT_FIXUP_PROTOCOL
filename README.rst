@@ -23,6 +23,9 @@ Revision History
 +------------+-----------------------------------------------------------------+
 | 2025-06-01 | Clarify license                                                 |
 +------------+-----------------------------------------------------------------+
+| 2025-12-03 | Refer to the Devicetree Specification concerning                |
+|            | memory types for memory reservations.                           |
++------------+-----------------------------------------------------------------+
 
 License
 -------
@@ -213,9 +216,18 @@ should discard the buffer content.
 When **Fixup()** is called with **EFI_DT_RESERVE_MEMORY**, memory is reserved
 according to the /reserved-memory node and the memory reservation block
 
-Memory is reserved as **EfiBootServicesData** if the reservation does not carry
-the **no-map** property and as **EfiReservedMemoryType** if it is marked as
-**no-map**.
+The `Devicetree Specification <https://www.devicetree.org/specifications/>`_
+defines the EFI memory types to be used for reserved memory.
+
+Here is a non-authoritative summary of the memory type requirements
+according to the Devicetree Specification v0.4 released 2024-06-28:
+
+- Memory regions listed in the memory reservation block are marked as
+  **EfiReservedMemoryType**.
+
+- Memory regions in the /reserved-memory node are marked as
+  **EfiReservedMemoryType** if they possess the **no-map** property and as
+  **EfiBootServicesData** otherwise.
 
 Status Codes Returned
 ~~~~~~~~~~~~~~~~~~~~~
